@@ -48,7 +48,7 @@ class SplitAccountServiceTest {
         LocalDateTime now = LocalDateTime.now();
         SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
             .userId(1L)
-            .rommId("room")
+            .roomId("room")
             .amount(100000)
             .withdrawLimit(5)
             .requestAt(now)
@@ -75,7 +75,7 @@ class SplitAccountServiceTest {
         LocalDateTime now = LocalDateTime.now();
         SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
             .userId(1L)
-            .rommId("room")
+            .roomId("room")
             .amount(100000)
             .withdrawLimit(5)
             .requestAt(now)
@@ -111,7 +111,7 @@ class SplitAccountServiceTest {
         LocalDateTime now = LocalDateTime.now();
         SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
             .userId(1L)
-            .rommId("room")
+            .roomId("room")
             .amount(100000)
             .withdrawLimit(5)
             .requestAt(now)
@@ -137,7 +137,7 @@ class SplitAccountServiceTest {
         LocalDateTime now = LocalDateTime.now();
         SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
             .userId(1L)
-            .rommId("room")
+            .roomId("room")
             .amount(100000)
             .withdrawLimit(5)
             .requestAt(now)
@@ -163,7 +163,7 @@ class SplitAccountServiceTest {
         LocalDateTime now = LocalDateTime.now();
         SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
             .userId(1L)
-            .rommId("room")
+            .roomId("room")
             .amount(100000)
             .withdrawLimit(5)
             .requestAt(now)
@@ -189,7 +189,7 @@ class SplitAccountServiceTest {
         LocalDateTime now = LocalDateTime.now();
         SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
             .userId(1L)
-            .rommId("room")
+            .roomId("room")
             .amount(100000)
             .withdrawLimit(5)
             .requestAt(now)
@@ -217,7 +217,7 @@ class SplitAccountServiceTest {
         LocalDateTime now = LocalDateTime.now();
         SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
             .userId(1L)
-            .rommId("room")
+            .roomId("room")
             .amount(99999)
             .withdrawLimit(3)
             .requestAt(now)
@@ -267,7 +267,7 @@ class SplitAccountServiceTest {
         int amount = 99999;
         SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
             .userId(ownerId)
-            .rommId("room")
+            .roomId("room")
             .amount(amount)
             .withdrawLimit(3)
             .requestAt(now)
@@ -322,7 +322,7 @@ class SplitAccountServiceTest {
         LocalDateTime now = LocalDateTime.now();
         SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
             .userId(1L)
-            .rommId("room")
+            .roomId("room")
             .amount(99999)
             .withdrawLimit(3)
             .requestAt(now)
@@ -346,7 +346,7 @@ class SplitAccountServiceTest {
         LocalDateTime now = LocalDateTime.now();
         SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
             .userId(1L)
-            .rommId("room")
+            .roomId("room")
             .amount(99999)
             .withdrawLimit(3)
             .requestAt(now)
