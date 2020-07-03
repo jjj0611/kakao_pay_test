@@ -13,10 +13,16 @@ import org.junit.jupiter.api.Test;
 import org.kakaopay.recruit.bankingsystem.domain.entity.Account;
 import org.kakaopay.recruit.bankingsystem.domain.entity.Transaction;
 import org.kakaopay.recruit.bankingsystem.domain.entity.TransactionStatus;
+import org.kakaopay.recruit.bankingsystem.domain.exception.RetrieveRuleViolationException;
 import org.kakaopay.recruit.bankingsystem.domain.exception.WithdrawFailureException;
 import org.kakaopay.recruit.bankingsystem.domain.exception.WithdrawRuleViolationException;
 import org.kakaopay.recruit.bankingsystem.domain.reposiotry.AccountRepository;
 import org.kakaopay.recruit.bankingsystem.domain.reposiotry.TransactionRepository;
+import org.kakaopay.recruit.bankingsystem.domain.service.dto.request.SplitAccountCreateRequest;
+import org.kakaopay.recruit.bankingsystem.domain.service.dto.request.SplitAccountRetrieveRequest;
+import org.kakaopay.recruit.bankingsystem.domain.service.dto.request.SplitAccountWithdrawRequest;
+import org.kakaopay.recruit.bankingsystem.domain.service.dto.response.ReceivedHistory;
+import org.kakaopay.recruit.bankingsystem.domain.service.dto.response.SplitAccountRetrieveResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -204,6 +210,7 @@ class SplitAccountServiceTest {
     }
 
 
+    @Test
     @DisplayName("모두 소진된 뿌리기를 받기를 시도한다.")
     void withdrawError5() {
         LocalDateTime now = LocalDateTime.now();
@@ -249,5 +256,109 @@ class SplitAccountServiceTest {
         assertThatThrownBy(() -> splitAccountService.withdraw(splitAccountWithdrawRequest4))
             .isInstanceOf(WithdrawFailureException.class)
             .hasMessageContaining("더 이상 남은 뿌리기가 없습니다.");
+    }
+
+    @Test
+    @DisplayName("모두 소진된 뿌리기를 받기를 시도한다.")
+    void retrieve() {
+        Long ownerId = 1L;
+        LocalDateTime now = LocalDateTime.now();
+        int amount = 99999;
+        SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
+            .userId(ownerId)
+            .rommId("room")
+            .amount(amount)
+            .withdrawLimit(3)
+            .requestAt(now)
+            .build();
+        splitAccountService.create(splitAccountCreateRequest);
+
+        SplitAccountWithdrawRequest splitAccountWithdrawRequest1 = SplitAccountWithdrawRequest.builder()
+            .token("abc")
+            .roomId("room")
+            .userId(2L)
+            .requestAt(now.plusMinutes(1))
+            .build();
+        SplitAccountWithdrawRequest splitAccountWithdrawRequest2 = SplitAccountWithdrawRequest.builder()
+            .token("abc")
+            .roomId("room")
+            .userId(3L)
+            .requestAt(now.plusMinutes(1))
+            .build();
+
+        splitAccountService.withdraw(splitAccountWithdrawRequest1);
+        splitAccountService.withdraw(splitAccountWithdrawRequest2);
+        ReceivedHistory receivedHistory1 = ReceivedHistory.builder()
+            .userId(2L)
+            .amount(33333)
+            .build();
+        ReceivedHistory receivedHistory2 = ReceivedHistory.builder()
+            .userId(3L)
+            .amount(33333)
+            .build();
+
+        SplitAccountRetrieveRequest splitAccountRetrieveRequest = SplitAccountRetrieveRequest.builder()
+            .token("abc")
+            .userId(ownerId)
+            .requestAt(now.plusDays(1))
+            .build();
+
+        SplitAccountRetrieveResponse splitAccountRetrieveResponse = splitAccountService.retrieve(splitAccountRetrieveRequest);
+
+        assertThat(splitAccountRetrieveResponse.getCreatedAt()).isEqualTo(now);
+        assertThat(splitAccountRetrieveResponse.getAmount()).isEqualTo(amount);
+        assertThat(splitAccountRetrieveResponse.getReceivedAmount()).isEqualTo(66666);
+        List<ReceivedHistory> histories = splitAccountRetrieveResponse.getHistories();
+        assertThat(histories).hasSize(2);
+        assertThat(histories).contains(receivedHistory1);
+        assertThat(histories).contains(receivedHistory2);
+    }
+
+    @Test
+    @DisplayName("뿌리기를 새성하지않은 유저가 조회 요청")
+    void retrieveError1() {
+        LocalDateTime now = LocalDateTime.now();
+        SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
+            .userId(1L)
+            .rommId("room")
+            .amount(99999)
+            .withdrawLimit(3)
+            .requestAt(now)
+            .build();
+        splitAccountService.create(splitAccountCreateRequest);
+
+        SplitAccountRetrieveRequest splitAccountRetrieveRequest = SplitAccountRetrieveRequest.builder()
+            .token("abc")
+            .userId(2L)
+            .requestAt(now.plusDays(1))
+            .build();
+
+        assertThatThrownBy(() -> splitAccountService.retrieve(splitAccountRetrieveRequest))
+            .isInstanceOf(RetrieveRuleViolationException.class)
+            .hasMessageContaining("자신이 생성한 뿌리기만 조회할 수 있습니다.");
+    }
+
+    @Test
+    @DisplayName("뿌리기 조회 만료 후 조회 요청")
+    void retrieveError2() {
+        LocalDateTime now = LocalDateTime.now();
+        SplitAccountCreateRequest splitAccountCreateRequest = SplitAccountCreateRequest.builder()
+            .userId(1L)
+            .rommId("room")
+            .amount(99999)
+            .withdrawLimit(3)
+            .requestAt(now)
+            .build();
+        splitAccountService.create(splitAccountCreateRequest);
+
+        SplitAccountRetrieveRequest splitAccountRetrieveRequest = SplitAccountRetrieveRequest.builder()
+            .token("abc")
+            .userId(1L)
+            .requestAt(now.plusDays(8))
+            .build();
+
+        assertThatThrownBy(() -> splitAccountService.retrieve(splitAccountRetrieveRequest))
+            .isInstanceOf(RetrieveRuleViolationException.class)
+            .hasMessageContaining("뿌리기 조회가 만료되었습니다.");
     }
 }

@@ -3,6 +3,7 @@ package org.kakaopay.recruit.bankingsystem.domain.service;
 import org.kakaopay.recruit.bankingsystem.domain.entity.Account;
 import org.kakaopay.recruit.bankingsystem.domain.exception.AccountNotFoundException;
 import org.kakaopay.recruit.bankingsystem.domain.reposiotry.AccountRepository;
+import org.kakaopay.recruit.bankingsystem.domain.service.dto.request.AccountCreateRequest;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,6 @@ public class AccountService {
 
     public Account findByToken(String token) {
         return accountRepository.findByToken(token)
-            .orElseThrow(() -> new AccountNotFoundException());
+            .orElseThrow(() -> new AccountNotFoundException("토큰에 해당하는 뿌리기가 없습니다."));
     }
 }

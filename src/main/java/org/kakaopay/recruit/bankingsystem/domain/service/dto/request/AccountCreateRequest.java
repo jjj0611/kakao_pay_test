@@ -1,4 +1,4 @@
-package org.kakaopay.recruit.bankingsystem.domain.service;
+package org.kakaopay.recruit.bankingsystem.domain.service.dto.request;
 
 import java.time.LocalDateTime;
 
