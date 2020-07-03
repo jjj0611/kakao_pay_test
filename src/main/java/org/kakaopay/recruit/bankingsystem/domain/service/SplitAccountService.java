@@ -57,7 +57,7 @@ public class SplitAccountService {
     }
 
     @Transactional
-    public void withdraw(SplitAccountWithdrawRequest request) {
+    public long withdraw(SplitAccountWithdrawRequest request) {
         Account account = accountService.findByToken(request.getToken());
         Long userId = request.getUserId();
         if (!account.getRoomId().equals(request.getRoomId())) {
@@ -79,6 +79,7 @@ public class SplitAccountService {
             .orElseThrow(() -> new WithdrawFailureException("더 이상 남은 뿌리기가 없습니다."));
 
         withdrawStandby.toNextStatus(TransactionStatus.WITHDRAW_COMPLETED, userId);
+        return withdrawStandby.getAmount();
     }
 
     private boolean hasAnyTransactionAlready(SplitAccountWithdrawRequest request,

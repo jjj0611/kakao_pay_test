@@ -7,3 +7,9 @@ X-ROOM-ID: room
   "amount": "99999",
   "withdrawLimit": "3"
 }
+
+###
+POST http://localhost:8080/api/split-account/abc
+Content-Type: application/json
+X-USER-ID: 2
+X-ROOM-ID: room
