@@ -96,8 +96,10 @@ class SplitAccountServiceTest {
         Map<TransactionStatus, List<Transaction>> transactionStatusMap = transactions.stream()
             .collect(Collectors.groupingBy(Transaction::getStatus));
 
-        assertThat(transactionStatusMap.get(TransactionStatus.WITHDRAW_STANDBY)).hasSize(splitAccountCreateRequest.getWithdrawLimit() - 1);
-        List<Transaction> completed = transactionStatusMap.get(TransactionStatus.WITHDRAW_COMPLETED);
+        assertThat(transactionStatusMap.get(TransactionStatus.WITHDRAW_STANDBY)).hasSize(
+            splitAccountCreateRequest.getWithdrawLimit() - 1);
+        List<Transaction> completed = transactionStatusMap.get(
+            TransactionStatus.WITHDRAW_COMPLETED);
         assertThat(completed).hasSize(1);
         assertThat(completed.get(0).getAmount()).isEqualTo(20000);
         assertThat(completed.get(0).getUserId()).isEqualTo(2);
@@ -209,7 +211,6 @@ class SplitAccountServiceTest {
             .hasMessageContaining("이미 받은 뿌리기는 중복으로 받을 수 없습니다.");
     }
 
-
     @Test
     @DisplayName("모두 소진된 뿌리기를 받기를 시도한다.")
     void withdrawError5() {
@@ -303,7 +304,8 @@ class SplitAccountServiceTest {
             .requestAt(now.plusDays(1))
             .build();
 
-        SplitAccountRetrieveResponse splitAccountRetrieveResponse = splitAccountService.retrieve(splitAccountRetrieveRequest);
+        SplitAccountRetrieveResponse splitAccountRetrieveResponse = splitAccountService.retrieve(
+            splitAccountRetrieveRequest);
 
         assertThat(splitAccountRetrieveResponse.getCreatedAt()).isEqualTo(now);
         assertThat(splitAccountRetrieveResponse.getAmount()).isEqualTo(amount);

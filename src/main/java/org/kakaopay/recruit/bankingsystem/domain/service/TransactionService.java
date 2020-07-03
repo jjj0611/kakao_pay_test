@@ -20,12 +20,14 @@ public class TransactionService {
     }
 
     public Transaction deposit(Account account, long amount, Long userId) {
-        return transactionRepository.save(Transaction.depositCompleted(account, amount, userId, LocalDateTime
-            .now()));
+        return transactionRepository.save(
+            Transaction.depositCompleted(account, amount, userId, LocalDateTime
+                .now()));
     }
 
     public Transaction withdrawStandby(Account account, long amount) {
-        return transactionRepository.save(Transaction.withdrawStandby(account, amount, null, LocalDateTime
-            .now()));
+        return transactionRepository.save(
+            Transaction.withdrawStandby(account, amount, null, LocalDateTime
+                .now()));
     }
 }

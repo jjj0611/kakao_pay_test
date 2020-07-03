@@ -1,0 +1,9 @@
+POST http://localhost:8080/api/split-account
+Content-Type: application/json
+X-USER-ID: 1
+X-ROOM-ID: room
+
+{
+  "amount": "99999",
+  "withdrawLimit": "3"
+}

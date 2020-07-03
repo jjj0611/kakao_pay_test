@@ -31,7 +31,7 @@ public class SplitAccountService {
     private final TransactionService transactionService;
 
     @Transactional
-    public void create(SplitAccountCreateRequest request) {
+    public String create(SplitAccountCreateRequest request) {
         Long userId = request.getUserId();
         long amount = request.getAmount();
         int withdrawLimit = request.getWithdrawLimit();
@@ -41,7 +41,7 @@ public class SplitAccountService {
             // TODO: token 생성기 만들기
             .token("abc")
             .ownerId(userId)
-            .roomId(request.getRommId())
+            .roomId(request.getRoomId())
             .createdAt(requestAt)
             .withdrawExpiredAt(requestAt.plusMinutes(SPLIT_ACCOUNT_WITHDRAW_EXPIRED_MINUTES))
             .lookupExpiredAt(requestAt.plusDays(SPLIT_ACCOUNT_LOOKUP_EXPIRED_DAYS))
@@ -53,6 +53,7 @@ public class SplitAccountService {
         for (int i = 0; i < withdrawLimit; i++) {
             transactionService.withdrawStandby(account, amount / withdrawLimit);
         }
+        return "abc";
     }
 
     @Transactional
@@ -80,30 +81,36 @@ public class SplitAccountService {
         withdrawStandby.toNextStatus(TransactionStatus.WITHDRAW_COMPLETED, userId);
     }
 
-    private boolean hasAnyTransactionAlready(SplitAccountWithdrawRequest request, List<Transaction> transactions) {
-        return transactions.stream().anyMatch(transaction -> request.getUserId().equals(transaction.getUserId()));
+    private boolean hasAnyTransactionAlready(SplitAccountWithdrawRequest request,
+        List<Transaction> transactions) {
+        return transactions.stream()
+            .anyMatch(transaction -> request.getUserId().equals(transaction.getUserId()));
     }
 
     @Transactional
     public SplitAccountRetrieveResponse retrieve(SplitAccountRetrieveRequest request) {
         Account account = accountService.findByToken(request.getToken());
-        if ( !request.getUserId().equals(account.getOwnerId())) {
+        if (!request.getUserId().equals(account.getOwnerId())) {
             throw new RetrieveRuleViolationException("자신이 생성한 뿌리기만 조회할 수 있습니다.");
         }
-        if ( request.getRequestAt().isAfter(account.getLookupExpiredAt())) {
+        if (request.getRequestAt().isAfter(account.getLookupExpiredAt())) {
             throw new RetrieveRuleViolationException("뿌리기 조회가 만료되었습니다.");
         }
         List<Transaction> transactions = transactionService.findByACcount(account);
         Map<TransactionStatus, List<Transaction>> transactionStatusMap = transactions.stream()
             .collect(Collectors.groupingBy(Transaction::getStatus));
-        Transaction depositTransaction = transactionStatusMap.get(TransactionStatus.DEPOSIT_COMPLETED).get(0);
+        Transaction depositTransaction = transactionStatusMap.get(
+            TransactionStatus.DEPOSIT_COMPLETED).get(0);
         List<Transaction> withdrawCompletedTransactions = transactionStatusMap.get(
             TransactionStatus.WITHDRAW_COMPLETED);
         return SplitAccountRetrieveResponse.builder()
             .createdAt(account.getCreatedAt())
             .amount(depositTransaction.getAmount())
-            .receivedAmount(withdrawCompletedTransactions.stream().mapToLong(Transaction::getAmount).sum())
-            .histories(withdrawCompletedTransactions.stream().map(ReceivedHistory::of).collect(Collectors.toList()))
+            .receivedAmount(
+                withdrawCompletedTransactions.stream().mapToLong(Transaction::getAmount).sum())
+            .histories(withdrawCompletedTransactions.stream()
+                .map(ReceivedHistory::of)
+                .collect(Collectors.toList()))
             .build();
     }
 }

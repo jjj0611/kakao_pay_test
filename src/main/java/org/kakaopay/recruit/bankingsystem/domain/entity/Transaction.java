@@ -1,7 +1,6 @@
 package org.kakaopay.recruit.bankingsystem.domain.entity;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -91,8 +90,8 @@ public class Transaction {
     }
 
     public void toNextStatus(TransactionStatus nextStatus, Long userId) {
-        if(!status.getPossibleNextStatus().contains(nextStatus)) {
-           throw new TransactionStatusChangeValidationException("유효하지 않은 트랜잭션 상태 변화입니다.");
+        if (!status.getPossibleNextStatus().contains(nextStatus)) {
+            throw new TransactionStatusChangeValidationException("유효하지 않은 트랜잭션 상태 변화입니다.");
         }
         this.status = nextStatus;
         this.userId = userId;
