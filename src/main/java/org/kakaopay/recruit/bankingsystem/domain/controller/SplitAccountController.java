@@ -3,13 +3,15 @@ package org.kakaopay.recruit.bankingsystem.domain.controller;
 import java.net.URI;
 import java.time.LocalDateTime;
 
-import javax.servlet.http.HttpServletMapping;
 import javax.servlet.http.HttpServletRequest;
 
 import org.kakaopay.recruit.bankingsystem.domain.service.SplitAccountService;
 import org.kakaopay.recruit.bankingsystem.domain.service.dto.request.SplitAccountCreateRequest;
+import org.kakaopay.recruit.bankingsystem.domain.service.dto.request.SplitAccountRetrieveRequest;
 import org.kakaopay.recruit.bankingsystem.domain.service.dto.request.SplitAccountWithdrawRequest;
+import org.kakaopay.recruit.bankingsystem.domain.service.dto.response.SplitAccountRetrieveResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,7 +42,8 @@ public class SplitAccountController {
     }
 
     @PostMapping("/{token}")
-    public ResponseEntity<Long> withdraw(HttpServletRequest httpRequest, @PathVariable String token) {
+    public ResponseEntity<Long> withdraw(HttpServletRequest httpRequest,
+        @PathVariable String token) {
         Long userId = Long.valueOf(httpRequest.getHeader("X-USER-ID"));
         String roomId = httpRequest.getHeader("X-ROOM-ID");
 
@@ -54,6 +57,23 @@ public class SplitAccountController {
         long amount = splitAccountService.withdraw(splitAccountWithdrawRequest);
 
         return ResponseEntity.ok(amount);
+    }
+
+    @GetMapping("/{token}")
+    public ResponseEntity<SplitAccountRetrieveResponse> retrieve(HttpServletRequest httpRequest,
+        @PathVariable String token) {
+        Long userId = Long.valueOf(httpRequest.getHeader("X-USER-ID"));
+
+        SplitAccountRetrieveRequest splitAccountRetrieveRequest = SplitAccountRetrieveRequest.builder()
+            .token(token)
+            .userId(userId)
+            .requestAt(LocalDateTime.now())
+            .build();
+
+        SplitAccountRetrieveResponse response = splitAccountService.retrieve(
+            splitAccountRetrieveRequest);
+
+        return ResponseEntity.ok(response);
     }
 
 }

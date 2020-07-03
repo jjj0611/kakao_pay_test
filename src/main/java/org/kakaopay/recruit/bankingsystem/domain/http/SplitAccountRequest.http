@@ -13,3 +13,9 @@ POST http://localhost:8080/api/split-account/abc
 Content-Type: application/json
 X-USER-ID: 2
 X-ROOM-ID: room
+
+###
+GET http://localhost:8080/api/split-account/abc
+Content-Type: application/json
+X-USER-ID: 1
+X-ROOM-ID: room
