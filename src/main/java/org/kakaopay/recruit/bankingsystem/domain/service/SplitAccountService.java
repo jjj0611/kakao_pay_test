@@ -1,8 +1,10 @@
 package org.kakaopay.recruit.bankingsystem.domain.service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.kakaopay.recruit.bankingsystem.domain.entity.Account;
@@ -104,14 +106,19 @@ public class SplitAccountService {
             TransactionStatus.DEPOSIT_COMPLETED).get(0);
         List<Transaction> withdrawCompletedTransactions = transactionStatusMap.get(
             TransactionStatus.WITHDRAW_COMPLETED);
+        long receivedAmount = 0;
+        List<ReceivedHistory> histories = Collections.emptyList();
+        if (Objects.nonNull(withdrawCompletedTransactions)) {
+            receivedAmount = withdrawCompletedTransactions.stream().mapToLong(Transaction::getAmount).sum();
+            histories = withdrawCompletedTransactions.stream()
+                .map(ReceivedHistory::of)
+                .collect(Collectors.toList());
+        }
         return SplitAccountRetrieveResponse.builder()
             .createdAt(account.getCreatedAt())
             .amount(depositTransaction.getAmount())
-            .receivedAmount(
-                withdrawCompletedTransactions.stream().mapToLong(Transaction::getAmount).sum())
-            .histories(withdrawCompletedTransactions.stream()
-                .map(ReceivedHistory::of)
-                .collect(Collectors.toList()))
+            .receivedAmount(receivedAmount)
+            .histories(histories)
             .build();
     }
 }
